@@ -1,1 +1,22 @@
 GET http://localhost/user/health
+
+###
+
+POST http://localhost/user
+Content-Type: application/json
+
+{
+    "name": "Vitor Faria",
+    "email": "vhugo@vitorhugo.pt",
+    "password": "123456"
+}
+
+###
+
+POST http://localhost/user/auth/login
+Content-Type: application/json
+
+{
+    "email": "vhugo@vitorhugo.pt",
+    "password": "123456"
+}

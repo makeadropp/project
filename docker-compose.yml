@@ -21,6 +21,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgres://user:password@postgres:5432/dropp_db
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
     depends_on:
       - postgres
       - rabbitmq
@@ -31,6 +32,28 @@ services:
       - "traefik.http.services.user.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.user-strip.stripprefix.prefixes=/user"
       - "traefik.http.routers.user.middlewares=user-strip@docker"
+
+  address:
+    image: oven/bun:latest
+    volumes:
+      - ./address:/app
+    working_dir: /app
+    command: sh -c "bun install && bun run dev"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://user:password@postgres:5432/dropp_db
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
+    depends_on:
+      - postgres
+      - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.address.rule=PathPrefix(`/address`)"
+      - "traefik.http.routers.address.entrypoints=web"
+      - "traefik.http.services.address.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.address-strip.stripprefix.prefixes=/address"
+      - "traefik.http.routers.address.middlewares=address-strip@docker"
 
   mongodb:
     image: mongo:latest

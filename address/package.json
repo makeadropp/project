@@ -1,5 +1,5 @@
 {
-  "name": "user-service",
+  "name": "address-service",
   "module": "src/server.ts",
   "type": "module",
   "scripts": {
