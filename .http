@@ -1,8 +1,13 @@
-GET http://localhost/user/health
+@url = http://localhost
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4Mjc0NDM4Zi0yOTU0LTQxODgtYWU0MS1iMzQ4YmE1ZDg5ZmUiLCJlbWFpbCI6InZodWdvQHZpdG9yaHVnby5wdCIsImlhdCI6MTczMzUxMzI0NCwiZXhwIjoxNzMzNTk5NjQ0fQ.B-TOsoQ_x22DwN-niEgoiwjfSDEA4JJg86ZZ5IuJojw
 
 ###
 
-POST http://localhost/user
+GET {{url}}/user/health
+
+###
+
+POST {{url}}/user
 Content-Type: application/json
 
 {
@@ -13,10 +18,27 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost/user/auth/login
+POST {{url}}/user/auth/login
 Content-Type: application/json
 
 {
     "email": "vhugo@vitorhugo.pt",
     "password": "123456"
 }
+
+
+###
+
+POST {{url}}/address
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "street": "Praceta Fernando Lopes",
+  "city": "Barcelos",
+  "state": "Braga",
+  "postal_code": "4750-307",
+  "country": "Portugal",
+  "address_type": "home"
+}
+    

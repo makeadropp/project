@@ -1,48 +1,41 @@
-import { CreateUserUseCase } from "../domain/usecases/CreateUserUseCase";
-import { LoginUseCase } from "../domain/usecases/LoginUseCase";
-import { PostgresUserRepository } from "../infrastructure/repositories/PostgresUserRepository";
-import { AuthController } from "../presentation/controllers/AuthController";
-import { UserController } from "../presentation/controllers/UserController";
+import { CreateAddressUseCase } from "../domain/usecases/CreateAddressUseCase";
+import { GetAddressListUseCase } from "../domain/usecases/GetAddressListUseCase";
+import { PostgresAdressRepository } from "../infrastructure/repositories/PostgresAdressRepository";
+import { AddressController } from "../presentation/controllers/AddressController";
 
 export class Container {
-  private static userRepository: PostgresUserRepository;
-  private static createUserUseCase: CreateUserUseCase;
-  private static loginUseCase: LoginUseCase;
-  private static userController: UserController;
-  private static authController: AuthController;
+  private static adressRepository: PostgresAdressRepository;
+  private static CreateAddressUseCase: CreateAddressUseCase;
+  private static GetAddressListUseCase: GetAddressListUseCase
+  private static addressController: AddressController;
 
-  static getUserController(): UserController {
-    if (!this.userController) {
-      this.userController = new UserController(this.getCreateUserUseCase());
+  static getAddressController(): AddressController {
+    if (!this.addressController) {
+      this.addressController = new AddressController(this.getCreateAddressUseCase(), this.getAddressListUseCase());
     }
-    return this.userController;
+    return this.addressController;
   }
 
-  private static getCreateUserUseCase(): CreateUserUseCase {
-    if (!this.createUserUseCase) {
-      this.createUserUseCase = new CreateUserUseCase(this.getUserRepository());
+  private static getCreateAddressUseCase(): CreateAddressUseCase {
+    if (!this.CreateAddressUseCase) {
+      this.CreateAddressUseCase = new CreateAddressUseCase(this.getAddressRepository());
     }
-    return this.createUserUseCase;
+    return this.CreateAddressUseCase;
   }
 
-  private static getUserRepository(): PostgresUserRepository {
-    if (!this.userRepository) {
-      this.userRepository = new PostgresUserRepository();
+  private static getAddressListUseCase(): GetAddressListUseCase {
+    if (!this.GetAddressListUseCase) {
+      this.GetAddressListUseCase = new GetAddressListUseCase(this.getAddressRepository());
     }
-    return this.userRepository;
+    return this.GetAddressListUseCase;
   }
 
-  static getAuthController(): AuthController {
-    if (!this.authController) {
-      this.authController = new AuthController(this.getLoginUseCase());
+  private static getAddressRepository(): PostgresAdressRepository {
+    if (!this.adressRepository) {
+      this.adressRepository = new PostgresAdressRepository();
     }
-    return this.authController;
+    return this.adressRepository;
   }
 
-  private static getLoginUseCase(): LoginUseCase {
-    if (!this.loginUseCase) {
-      this.loginUseCase = new LoginUseCase(this.getUserRepository());
-    }
-    return this.loginUseCase;
-  }
+
 }

@@ -2,7 +2,7 @@ import { pool } from "../postgres";
 
 export async function createAddressTable() {
   const createTableQuery = `
-    CREATE TABLE address (
+    CREATE TABLE IF NOT EXISTS address (
       address_id UUID PRIMARY KEY,
       user_id UUID NOT NULL,
       street VARCHAR(255) NOT NULL,

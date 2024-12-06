@@ -16,10 +16,10 @@ services:
     volumes:
       - ./user:/app
     working_dir: /app
-    command: sh -c "bun install && bun run dev"
+    command: sh -c "bun install && bun run db:wait && bun run dev"
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://user:password@postgres:5432/dropp_db
+      - DATABASE_URL=postgres://user:password@postgres:5432/user_db
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
       - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
     depends_on:
@@ -38,10 +38,10 @@ services:
     volumes:
       - ./address:/app
     working_dir: /app
-    command: sh -c "bun install && bun run dev"
+    command: sh -c "bun install && bun run db:wait && bun run dev"
     environment:
       - PORT=3000
-      - DATABASE_URL=postgres://user:password@postgres:5432/dropp_db
+      - DATABASE_URL=postgres://user:password@postgres:5432/address_db
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
       - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
     depends_on:
@@ -81,6 +81,12 @@ services:
       - POSTGRES_DB=dropp_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "5432:5432"
 

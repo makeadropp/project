@@ -9,5 +9,6 @@ export const app = new Hono();
 initializeDatabase();
 
 app.route("/health", healthRouter);
-app.route("/", userRouter);
 app.route("/auth", authRouter);
+app.route("/", userRouter);
+
