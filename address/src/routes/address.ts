@@ -8,7 +8,7 @@ const addressController = Container.getAddressController();
 addressRouter.use("/*", authMiddleware);
 addressRouter.post("/", (c) => addressController.create(c));
 addressRouter.get("/:id", (c) => addressController.list(c));
-
+// addressRouter.get("/user/:id", (c) => addressController.user(c));
 
 
 export { addressRouter };
