@@ -15,6 +15,11 @@ export class LoginUseCase {
       throw new Error("Invalid credentials");
     }
 
+    // Check if user is active
+    if (!user.isActive) {
+      throw new Error("Account is inactive");
+    }
+
     const isPasswordValid = await bcrypt.compare(
       credentials.password,
       user.password,
@@ -24,10 +29,19 @@ export class LoginUseCase {
     }
 
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { 
+        userId: user.id, 
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName
+      },
       this.jwtSecret,
       { expiresIn: "24h" },
     );
+
+    // Update last login timestamp through repository
+    await this.userRepository.update(user.id!, { lastLogin: new Date() });
 
     const { password, ...userWithoutPassword } = user;
     return {

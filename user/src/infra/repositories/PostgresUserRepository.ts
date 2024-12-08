@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import {
   CreateUserDTO,
   User,
+  UserRole,
   UserWithoutPassword,
 } from "../../domain/entities/User";
 import { UserRepository } from "../../domain/repositories/UserRepository";
@@ -10,85 +11,150 @@ import { pool } from '../db/postgres';
 export class PostgresUserRepository implements UserRepository {
   async create(data: CreateUserDTO): Promise<UserWithoutPassword> {
     const result = await pool.query(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, created_at, updated_at",
-      [data.name, data.email, data.password],
+      `INSERT INTO users (
+        first_name, 
+        last_name, 
+        email, 
+        phone, 
+        password_hash, 
+        role
+      ) VALUES ($1, $2, $3, $4, $5, $6) 
+      RETURNING 
+        user_id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        role,
+        is_active,
+        email_verified,
+        phone_verified,
+        created_at,
+        updated_at,
+        last_login`,
+      [
+        data.firstName,
+        data.lastName,
+        data.email,
+        data.phone,
+        data.password,
+        data.role,
+      ],
     );
 
-    return {
-      id: result.rows[0].id,
-      name: result.rows[0].name,
-      email: result.rows[0].email,
-      createdAt: result.rows[0].created_at,
-      updatedAt: result.rows[0].updated_at,
-    };
+    return this.mapRowToUserWithoutPassword(result.rows[0]);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
     if (result.rows.length === 0) return null;
 
-    return {
-      id: result.rows[0].id,
-      name: result.rows[0].name,
-      email: result.rows[0].email,
-      password: result.rows[0].password,
-      createdAt: result.rows[0].created_at,
-      updatedAt: result.rows[0].updated_at,
-    };
+    return this.mapRowToUser(result.rows[0]);
   }
 
   async findById(id: string): Promise<UserWithoutPassword | null> {
     const result = await pool.query(
-      "SELECT id, name, email, created_at, updated_at FROM users WHERE id = $1",
+      `SELECT 
+        user_id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        role,
+        is_active,
+        email_verified,
+        phone_verified,
+        created_at,
+        updated_at,
+        last_login
+      FROM users WHERE user_id = $1`,
       [id],
     );
     if (result.rows.length === 0) return null;
 
-    return {
-      id: result.rows[0].id,
-      name: result.rows[0].name,
-      email: result.rows[0].email,
-      createdAt: result.rows[0].created_at,
-      updatedAt: result.rows[0].updated_at,
-    };
+    return this.mapRowToUserWithoutPassword(result.rows[0]);
   }
 
   async findAll(): Promise<UserWithoutPassword[]> {
     const result = await pool.query(
-      "SELECT id, name, email, created_at, updated_at FROM users",
+      `SELECT 
+        user_id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        role,
+        is_active,
+        email_verified,
+        phone_verified,
+        created_at,
+        updated_at,
+        last_login
+      FROM users`,
     );
 
-    return result.rows.map((row) => ({
-      id: row.id,
-      name: row.name,
-      email: row.email,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }));
+    return result.rows.map(row => this.mapRowToUserWithoutPassword(row));
   }
 
   async update(id: string, data: Partial<User>): Promise<UserWithoutPassword> {
-    const fields = Object.keys(data)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(", ");
-    const values = Object.values(data);
+    const updates: { [key: string]: any } = {};
+    const values: any[] = [];
+    let paramCount = 1;
+
+    // Map entity field names to database column names
+    const fieldMapping: { [key: string]: string } = {
+      firstName: 'first_name',
+      lastName: 'last_name',
+      email: 'email',
+      phone: 'phone',
+      password: 'password_hash',
+      role: 'role',
+      isActive: 'is_active',
+      emailVerified: 'email_verified',
+      phoneVerified: 'phone_verified',
+      lastLogin: 'last_login'
+    };
+
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined && fieldMapping[key]) {
+        updates[fieldMapping[key]] = `$${paramCount}`;
+        values.push(value);
+        paramCount++;
+      }
+    }
+
+    const setClause = Object.entries(updates)
+      .map(([key, param]) => `${key} = ${param}`)
+      .join(', ');
 
     const result = await pool.query(
-      `UPDATE users SET ${fields}, updated_at = NOW() WHERE id = $1 RETURNING id, name, email, created_at, updated_at`,
-      [id, ...values],
+      `UPDATE users 
+      SET ${setClause}, updated_at = NOW() 
+      WHERE user_id = $${paramCount}
+      RETURNING 
+        user_id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        role,
+        is_active,
+        email_verified,
+        phone_verified,
+        created_at,
+        updated_at,
+        last_login`,
+      [...values, id],
     );
 
-    return {
-      id: result.rows[0].id,
-      name: result.rows[0].name,
-      email: result.rows[0].email,
-      createdAt: result.rows[0].created_at,
-      updatedAt: result.rows[0].updated_at,
-    };
+    return this.mapRowToUserWithoutPassword(result.rows[0]);
   }
 
   async delete(id: string): Promise<void> {
-    await pool.query("DELETE FROM users WHERE id = $1", [id]);
+    await pool.query("DELETE FROM users WHERE user_id = $1", [id]);
   }
 
   async validateCredentials(
@@ -99,6 +165,49 @@ export class PostgresUserRepository implements UserRepository {
     if (!user) return null;
 
     const isValid = await bcrypt.compare(password, user.password);
-    return isValid ? user : null;
+    if (isValid) {
+      // Update last_login timestamp
+      await pool.query(
+        "UPDATE users SET last_login = NOW() WHERE email = $1",
+        [email]
+      );
+      return user;
+    }
+    return null;
+  }
+
+  private mapRowToUser(row: any): User {
+    return {
+      id: row.user_id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+      phone: row.phone,
+      password: row.password_hash,
+      role: row.role as UserRole,
+      isActive: row.is_active,
+      emailVerified: row.email_verified,
+      phoneVerified: row.phone_verified,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      lastLogin: row.last_login,
+    };
+  }
+
+  private mapRowToUserWithoutPassword(row: any): UserWithoutPassword {
+    return {
+      id: row.user_id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+      phone: row.phone,
+      role: row.role as UserRole,
+      isActive: row.is_active,
+      emailVerified: row.email_verified,
+      phoneVerified: row.phone_verified,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      lastLogin: row.last_login,
+    };
   }
 }

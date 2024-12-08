@@ -1,10 +1,23 @@
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  DRIVER = 'DRIVER',
+  CUSTOMER = 'CUSTOMER'
+}
+
 export interface User {
   id?: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  phone: string;
   password: string;
+  role: UserRole;
+  isActive?: boolean;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  lastLogin?: Date;
 }
 
 export interface UserWithoutPassword extends Omit<User, "password"> {
@@ -12,14 +25,23 @@ export interface UserWithoutPassword extends Omit<User, "password"> {
 }
 
 export interface CreateUserDTO {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  phone: string;
   password: string;
+  role: UserRole;
 }
 
 export interface LoginDTO {
   email: string;
   password: string;
+}
+
+export interface ResetPasswordDTO {
+  email: string;
+  oldPassword: string;
+  newPassword: string;
 }
 
 export interface AuthResponse {

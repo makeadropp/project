@@ -1,5 +1,5 @@
 @url = http://localhost
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiYmIzZWRkMC1iZDVkLTQyZDctYmM1OC1hNjk0ZTU3YWIyOWYiLCJlbWFpbCI6InZodWdvQHZpdG9yaHVnby5wdCIsImlhdCI6MTczMzYxODk4MCwiZXhwIjoxNzMzNzA1MzgwfQ.ab6foeURIGpdP5tETz6ivylP6adkSSnwXIPPzaWBh_k
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzM2JhNjNjYi01Y2VmLTRhYjctOWU5MS04N2JjNGM0MzgxYjAiLCJlbWFpbCI6InZodWdvQHZpdG9yaHVnby5wdCIsImlhdCI6MTczMzYyNTc3NywiZXhwIjoxNzMzNzEyMTc3fQ.0Sw5vE3mT60Vds0GrGUnFR_I21mn5yhO0r13_mlXxnU
 
 ###
 
@@ -7,7 +7,7 @@ GET {{url}}/user/health
 
 ###
 
-POST {{url}}/user
+POST {{url}}/user/register
 Content-Type: application/json
 
 {
@@ -18,13 +18,19 @@ Content-Type: application/json
 
 ###
 
-POST {{url}}/user/auth/login
+POST {{url}}/user/login
 Content-Type: application/json
 
 {
     "email": "vhugo@vitorhugo.pt",
     "password": "123456"
 }
+
+###
+
+GET {{url}}/user/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 
 ###

@@ -1,0 +1,68 @@
+@baseUrl = http://localhost/user
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4Y2NlOWUwYy00OWFkLTQ5YzUtOGI3Mi1iNmFjMzRkZGI0MGQiLCJlbWFpbCI6ImpvYW8uc2lsdmFAZW1haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiZmlyc3ROYW1lIjoiSm_Do28iLCJsYXN0TmFtZSI6IlNpbHZhIiwiaWF0IjoxNzMzNjI2Njk2LCJleHAiOjE3MzM3MTMwOTZ9.-RvLm36p8tJ9h5SH3tWoPwm_BiI2UQe5XEn8DuqLNj0
+
+### Registro de Novo Cliente
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+    "firstName": "João",
+    "lastName": "Silva",
+    "email": "joao.silva@email.com",
+    "phone": "351912345678",
+    "password": "senha123",
+    "role": "CUSTOMER"
+}
+
+### Registro de Novo Motorista
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+    "firstName": "Manuel",
+    "lastName": "Santos",
+    "email": "manuel.santos@email.com",
+    "phone": "351923456789",
+    "password": "senha456",
+    "role": "DRIVER"
+}
+
+### Login de Usuário
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "email": "joao.silva@email.com",
+    "password": "novaSenha456"
+}
+
+### Obter Perfil Próprio
+GET {{baseUrl}}/me
+Authorization: Bearer {{authToken}}
+
+### Obter Perfil de Usuário Específico
+GET {{baseUrl}}/profile/8cce9e0c-49ad-49c5-8b72-b6ac34ddb40d
+Authorization: Bearer {{authToken}}
+
+### Redefinir Senha
+POST {{baseUrl}}/reset-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "email": "joao.silva@email.com",
+    "oldPassword": "senha123",
+    "newPassword": "novaSenha456"
+}
+
+### Listar Todos os Usuários (Requer ADMIN)
+GET {{baseUrl}}/users
+Authorization: Bearer {{authToken}}
+
+### Listar Motoristas (Requer ADMIN ou DRIVER)
+GET {{baseUrl}}/drivers
+Authorization: Bearer {{authToken}}
+
+### Listar Clientes (Requer ADMIN)
+GET {{baseUrl}}/customers
+Authorization: Bearer {{authToken}}
