@@ -1,41 +1,38 @@
-import { compare } from "bcryptjs";
-import { sign } from "jsonwebtoken";
-import { User } from "../entities/User";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { AuthResponse, LoginDTO } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";
 
 export class LoginUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly jwtSecret: string,
+  ) {}
 
-  async execute(email: string, password: string): Promise<{ token: string; user: Omit<User, 'password'> }> {
-    const user = await this.userRepository.findByEmail(email);
-    
+  async execute(credentials: LoginDTO): Promise<AuthResponse> {
+    const user = await this.userRepository.findByEmail(credentials.email);
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("Invalid credentials");
     }
 
-    const isValidPassword = await compare(password, user.password);
-    
-    if (!isValidPassword) {
-      throw new Error("Invalid password");
+    const isPasswordValid = await bcrypt.compare(
+      credentials.password,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new Error("Invalid credentials");
     }
 
-    const token = sign(
-      { 
-        userId: user.id,
-        email: user.email 
-      },
-      process.env.JWT_SECRET || 'default_secret',
-      { 
-        expiresIn: '1d' 
-      }
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      this.jwtSecret,
+      { expiresIn: "24h" },
     );
 
-    // Remove password from user object
-    const { password: _, ...userWithoutPassword } = user;
-
+    const { password, ...userWithoutPassword } = user;
     return {
+      user: userWithoutPassword as AuthResponse["user"],
       token,
-      user: userWithoutPassword
     };
   }
 }

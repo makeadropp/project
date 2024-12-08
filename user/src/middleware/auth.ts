@@ -1,22 +1,26 @@
 import { Context, Next } from "hono";
-import { verify } from "jsonwebtoken";
-import { JWTUser } from "../types/auth";
+import jwt from "jsonwebtoken";
+import { env } from "../config/env";
+
+declare module "hono" {
+  interface ContextVariableMap {
+    userId: string;
+  }
+}
 
 export async function authMiddleware(c: Context, next: Next) {
   try {
-    const authorization = c.req.header("Authorization");
-
-    if (!authorization || !authorization.startsWith("Bearer ")) {
-      return c.json({ error: "No token provided" }, 401);
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Unauthorized - No token provided" }, 401);
     }
 
-    const token = authorization.split(" ")[1];
-    const decoded = verify(token, process.env.JWT_SECRET || 'default_secret') as JWTUser;
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, env.JWT_SECRET) as { userId: string };
 
-    c.set('user', decoded);
-
+    c.set("userId", decoded.userId);
     await next();
   } catch (error) {
-    return c.json({ error: "Invalid token" }, 401);
+    return c.json({ error: "Unauthorized - Invalid token" }, 401);
   }
 }
