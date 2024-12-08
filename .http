@@ -1,5 +1,5 @@
 @url = http://localhost
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4Mjc0NDM4Zi0yOTU0LTQxODgtYWU0MS1iMzQ4YmE1ZDg5ZmUiLCJlbWFpbCI6InZodWdvQHZpdG9yaHVnby5wdCIsImlhdCI6MTczMzUxMzI0NCwiZXhwIjoxNzMzNTk5NjQ0fQ.B-TOsoQ_x22DwN-niEgoiwjfSDEA4JJg86ZZ5IuJojw
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiYmIzZWRkMC1iZDVkLTQyZDctYmM1OC1hNjk0ZTU3YWIyOWYiLCJlbWFpbCI6InZodWdvQHZpdG9yaHVnby5wdCIsImlhdCI6MTczMzYxODk4MCwiZXhwIjoxNzMzNzA1MzgwfQ.ab6foeURIGpdP5tETz6ivylP6adkSSnwXIPPzaWBh_k
 
 ###
 
@@ -29,16 +29,46 @@ Content-Type: application/json
 
 ###
 
+GET {{url}}/address/health
+
+###
+
+GET {{url}}/address
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+GET {{url}}/address/active/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+GET {{url}}/address/be7f22c5-ff12-4883-bb75-ceb06ac3648c
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
 POST {{url}}/address
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "street": "Praceta Fernando Lopes",
-  "city": "Barcelos",
-  "state": "Braga",
-  "postal_code": "4750-307",
+  "street": "Rua da Liberdade",
+  "number": "10",
+  "complement": "2º Esquerdo",
+  "neighborhood": "Baixa",
+  "city": "Lisboa",
+  "state": "Lisboa",
+  "postal_code": "1250-096",
   "country": "Portugal",
-  "address_type": "home"
+  "address_type": "residencial",
+  "latitude": 38.7169,
+  "longitude": -9.139,
+  "is_default": true,
+  "created_at": "2024-12-07T12:00:00Z",
+  "updated_at": "2024-12-07T12:00:00Z"
 }
     

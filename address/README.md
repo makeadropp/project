@@ -1,4 +1,4 @@
-# user-service
+# address-service
 
 To install dependencies:
 

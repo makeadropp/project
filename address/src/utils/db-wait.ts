@@ -1,11 +1,10 @@
 const { Pool } = require('pg');
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
 });
 
 const MAX_RETRIES = 5;
-const RETRY_DELAY = 5000; // 5 segundos
-
+const RETRY_DELAY = 5000;
 async function waitForDB(retries = MAX_RETRIES) {
   try {
     const client = await pool.connect();
