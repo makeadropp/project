@@ -55,6 +55,28 @@ services:
       - "traefik.http.middlewares.address-strip.stripprefix.prefixes=/address"
       - "traefik.http.routers.address.middlewares=address-strip@docker"
 
+  order:
+    image: oven/bun:latest
+    volumes:
+      - ./order:/app
+    working_dir: /app
+    command: sh -c "bun install && bun run db:wait && bun run dev"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://user:password@postgres:5432/order_db
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
+    depends_on:
+      - postgres
+      - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.order.rule=PathPrefix(`/order`)"
+      - "traefik.http.routers.order.entrypoints=web"
+      - "traefik.http.services.order.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.order-strip.stripprefix.prefixes=/order"
+      - "traefik.http.routers.order.middlewares=order-strip@docker"
+
   mongodb:
     image: mongo:latest
     environment:
