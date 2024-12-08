@@ -1,5 +1,5 @@
-import { Address } from '@/domain/entities/Address';
-import { AddressRepository } from '@/domain/repositories/AddressRepository';
+import { Address } from '../../domain/entities/Address';
+import { AddressRepository } from '../../domain/repositories/AddressRepository';
 import { pool } from '../db/postgres';
 
 export class PostgresAddressRepository implements AddressRepository {
@@ -41,11 +41,48 @@ export class PostgresAddressRepository implements AddressRepository {
         address.address_type,
         address.latitude,
         address.longitude,
-        address.is_default ?? false, // Define valor padrão se não fornecido
-        address.created_at ?? new Date().toISOString(), // Usa timestamp atual se não fornecido
-        address.updated_at ?? new Date().toISOString(), // Usa timestamp atual se não fornecido
+        address.is_default ?? false,
+        address.created_at ?? new Date().toISOString(),
+        address.updated_at ?? new Date().toISOString(),
       ],
     );
     return result.rows[0];
+  }
+
+  async update(id: string, data: Partial<Address>): Promise<Address> {
+    const updateFields = Object.keys(data)
+      .filter(key => key !== 'address_id' && key !== 'user_id') // Prevent updating these fields
+      .map((key, index) => `${key} = $${index + 2}`);
+
+    const values = Object.values(data).filter((_, index) => {
+      const key = Object.keys(data)[index];
+      return key !== 'address_id' && key !== 'user_id';
+    });
+
+    const query = `
+      UPDATE address 
+      SET ${updateFields.join(', ')}, updated_at = NOW()
+      WHERE address_id = $1 
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [id, ...values]);
+
+    if (result.rows.length === 0) {
+      throw new Error('Address not found');
+    }
+
+    return result.rows[0];
+  }
+
+  async delete(id: string): Promise<void> {
+    const result = await pool.query(
+      'DELETE FROM address WHERE address_id = $1 RETURNING *',
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error('Address not found');
+    }
   }
 }

@@ -17,7 +17,10 @@ export const createAddressSchema = z.object({
   is_default: z.boolean().optional().default(false),
 });
 
+export const updateAddressSchema = createAddressSchema.partial();
+
 export type CreateAddressInput = z.infer<typeof createAddressSchema>;
+export type UpdateAddressInput = z.infer<typeof updateAddressSchema>;
 
 export const idParamSchema = z.string().uuid();
 

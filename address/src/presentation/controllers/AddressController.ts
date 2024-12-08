@@ -1,8 +1,10 @@
-import { CreateAddressUseCase } from '@/domain/usecases/CreateAddressUseCase';
-import { GetAddressByIdUseCase } from '@/domain/usecases/GetAddressByIdUseCase';
-import { ListAddressesUseCase } from '@/domain/usecases/ListAddressesUseCase';
-import { AddressValidator } from '@/infra/validation/validators/AddressValidator';
 import { Context } from 'hono';
+import { CreateAddressUseCase } from '../../domain/usecases/CreateAddressUseCase';
+import { DeleteAddressUseCase } from '../../domain/usecases/DeleteAddressUseCase';
+import { GetAddressByIdUseCase } from '../../domain/usecases/GetAddressByIdUseCase';
+import { ListAddressesUseCase } from '../../domain/usecases/ListAddressesUseCase';
+import { UpdateAddressUseCase } from '../../domain/usecases/UpdateAddressUseCase';
+import { AddressValidator } from '../../infra/validation/validators/AddressValidator';
 import { handleError } from '../handlers/error';
 import { handleResponse } from '../handlers/response';
 
@@ -11,6 +13,8 @@ export class AddressController {
     private readonly listAddressesUseCase: ListAddressesUseCase,
     private readonly getAddressByIdUseCase: GetAddressByIdUseCase,
     private readonly createAddressUseCase: CreateAddressUseCase,
+    private readonly updateAddressUseCase: UpdateAddressUseCase,
+    private readonly deleteAddressUseCase: DeleteAddressUseCase,
     private readonly addressValidator: AddressValidator,
   ) {}
 
@@ -47,6 +51,36 @@ export class AddressController {
 
       const address = await this.createAddressUseCase.execute(data);
       return handleResponse(c, address, 201);
+    } catch (error) {
+      return handleError(c, error);
+    }
+  };
+
+  update = async (c: Context) => {
+    try {
+      const id = c.req.param('id');
+      const input = await c.req.json();
+
+      const validatedId = this.addressValidator.validateId(id);
+      const validatedData = this.addressValidator.validateUpdate(input);
+
+      const address = await this.updateAddressUseCase.execute(
+        validatedId,
+        validatedData,
+      );
+      return handleResponse(c, address);
+    } catch (error) {
+      return handleError(c, error);
+    }
+  };
+
+  delete = async (c: Context) => {
+    try {
+      const id = c.req.param('id');
+      const validatedId = this.addressValidator.validateId(id);
+
+      await this.deleteAddressUseCase.execute(validatedId);
+      return handleResponse(c, null, 204);
     } catch (error) {
       return handleError(c, error);
     }

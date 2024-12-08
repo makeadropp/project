@@ -1,0 +1,54 @@
+@baseUrl = http://localhost/address
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4Y2NlOWUwYy00OWFkLTQ5YzUtOGI3Mi1iNmFjMzRkZGI0MGQiLCJlbWFpbCI6ImpvYW8uc2lsdmFAZW1haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiZmlyc3ROYW1lIjoiSm_Do28iLCJsYXN0TmFtZSI6IlNpbHZhIiwiaWF0IjoxNzMzNjI2Njk2LCJleHAiOjE3MzM3MTMwOTZ9.-RvLm36p8tJ9h5SH3tWoPwm_BiI2UQe5XEn8DuqLNj0
+
+### Listar Endereços
+GET {{baseUrl}}
+Authorization: Bearer {{authToken}}
+
+### Obter Endereço por ID
+GET {{baseUrl}}/5bc3c6fb-a323-404f-8d60-cd169c42e0f3
+Authorization: Bearer {{authToken}}
+
+### Criar Novo Endereço
+POST {{baseUrl}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "street": "Rua das Flores",
+    "number": "123",
+    "complement": "Apartamento 4B",
+    "neighborhood": "Centro",
+    "city": "Porto",
+    "state": "PT",
+    "postal_code": "40000000",
+    "country": "Portugal",
+    "address_type": "HOME",
+    "latitude": 41.1496100,
+    "longitude": -8.6109900,
+    "is_default": true
+}
+
+### Atualizar Endereço
+PUT {{baseUrl}}/5bc3c6fb-a323-404f-8d60-cd169c42e0f3
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "street": "Avenida da Liberdade",
+    "number": "45",
+    "complement": "Bloco A",
+    "neighborhood": "Boavista",
+    "city": "Lisboa",
+    "state": "PT",
+    "postal_code": "10000000",
+    "country": "Portugal",
+    "address_type": "WORK",
+    "latitude": 38.7223000,
+    "longitude": -9.1393000,
+    "is_default": false
+}
+
+### Excluir Endereço
+DELETE {{baseUrl}}/5bc3c6fb-a323-404f-8d60-cd169c42e0f3
+Authorization: Bearer {{authToken}}
