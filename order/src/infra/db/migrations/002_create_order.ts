@@ -16,9 +16,9 @@ export async function createOrderTable() {
 
     DO $$ BEGIN
       CREATE TYPE transport_type AS ENUM (
-        'GROUND',
-        'AIR',
-        'SEA'
+        'BIKE',
+        'CAR',
+        'DRONE'
       );
     EXCEPTION
       WHEN duplicate_object THEN NULL;

@@ -1,5 +1,5 @@
 export enum TransportType {
-  GROUND = 'GROUND',
-  AIR = 'AIR',
-  SEA = 'SEA',
+  BIKE = 'BIKE',
+  CAR = 'CAR',
+  DRONE = 'DRONE',
 }
