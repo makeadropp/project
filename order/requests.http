@@ -17,11 +17,11 @@ Content-Type: application/json
 }
 
 ### Get Order by ID
-GET {{baseUrl}}/123e4567-e89b-12d3-a456-426614174003
+GET {{baseUrl}}/6e3b7504-0c21-4300-8a9f-7f26b4b303be
 Authorization: Bearer {{token}}
 
 ### Update Order
-PUT {{baseUrl}}/123e4567-e89b-12d3-a456-426614174003
+PUT {{baseUrl}}/6e3b7504-0c21-4300-8a9f-7f26b4b303be
 Authorization: Bearer {{token}}
 Content-Type: application/json
 

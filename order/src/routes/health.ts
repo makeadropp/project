@@ -4,8 +4,7 @@ const router = new Hono();
 
 router.get('/', c => {
   return c.json({
-    status: 'success',
-    message: 'Order service is running',
+    status: '🚀 Order service runnning!',
     timestamp: new Date().toISOString(),
   });
 });
