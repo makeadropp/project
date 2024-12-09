@@ -11,8 +11,8 @@ Content-Type: application/json
 
 {
   "userId": "123e4567-e89b-12d3-a456-426614174000",
-  "pickupAddressId": "123e4567-e89b-12d3-a456-426614174001",
-  "deliveryAddressId": "123e4567-e89b-12d3-a456-426614174002",
+  "pickupAddressId": "22f8bc6c-f8c6-4232-84da-943aac48eb23",
+  "deliveryAddressId": "22f8bc6c-f8c6-4232-84da-943aac48eb23",
   "transportType": "GROUND"
 }
 

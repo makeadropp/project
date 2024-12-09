@@ -66,6 +66,7 @@ services:
       - DATABASE_URL=postgres://user:password@postgres:5432/order_db
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
       - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
+      - ADDRESS_SERVICE_URL=http://address
     depends_on:
       - postgres
       - rabbitmq

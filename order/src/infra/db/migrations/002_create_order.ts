@@ -2,18 +2,27 @@ import { pool } from '../postgres';
 
 export async function createOrderTable() {
   const createTableQuery = `
-    CREATE TYPE order_status AS ENUM (
-      'PROCESSING',
-      'IN_TRANSIT',
-      'DELIVERED',
-      'CANCELLED'
-    );
+    DO $$ BEGIN
+      -- Create ENUMs if they don't exist
+      CREATE TYPE order_status AS ENUM (
+        'PROCESSING',
+        'IN_TRANSIT',
+        'DELIVERED',
+        'CANCELLED'
+      );
+    EXCEPTION
+      WHEN duplicate_object THEN NULL;
+    END $$;
 
-    CREATE TYPE transport_type AS ENUM (
-      'GROUND',
-      'AIR',
-      'SEA'
-    );
+    DO $$ BEGIN
+      CREATE TYPE transport_type AS ENUM (
+        'GROUND',
+        'AIR',
+        'SEA'
+      );
+    EXCEPTION
+      WHEN duplicate_object THEN NULL;
+    END $$;
 
     CREATE TABLE IF NOT EXISTS orders (
       id UUID PRIMARY KEY,
@@ -29,15 +38,15 @@ export async function createOrderTable() {
       delivered_at TIMESTAMP
     );
 
-    CREATE INDEX idx_orders_user_id ON orders(user_id);
-    CREATE INDEX idx_orders_status ON orders(status);
+    CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+    CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
   `;
 
   try {
     await pool.query(createTableQuery);
-    console.log('Address table created successfully');
+    console.log('Orders table created successfully');
   } catch (error) {
-    console.error('Error creating address table:', error);
+    console.error('Error creating orders table:', error);
     throw error;
   }
 }

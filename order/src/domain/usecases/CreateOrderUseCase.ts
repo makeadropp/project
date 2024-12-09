@@ -1,3 +1,7 @@
+import {
+  AddressValidationError,
+  validateAddressExists,
+} from '../../utils/addressValidator';
 import { Order } from '../entities/Order';
 import { TransportType } from '../enums/TransportType';
 import { OrderRepository } from '../repositories/OrderRepository';
@@ -7,6 +11,7 @@ interface CreateOrderDTO {
   pickupAddressId: string;
   deliveryAddressId: string;
   transportType?: TransportType;
+  authToken: string;
 }
 
 export class CreateOrderUseCase {
@@ -17,6 +22,7 @@ export class CreateOrderUseCase {
     pickupAddressId,
     deliveryAddressId,
     transportType,
+    authToken,
   }: CreateOrderDTO): Promise<Order> {
     if (!userId) {
       throw new Error('User ID is required');
@@ -28,6 +34,24 @@ export class CreateOrderUseCase {
 
     if (!deliveryAddressId) {
       throw new Error('Delivery address ID is required');
+    }
+
+    // Validate pickup address
+    const pickupAddressExists = await validateAddressExists(
+      pickupAddressId,
+      authToken,
+    );
+    if (!pickupAddressExists) {
+      throw new AddressValidationError('Pickup address does not exist');
+    }
+
+    // Validate delivery address
+    const deliveryAddressExists = await validateAddressExists(
+      deliveryAddressId,
+      authToken,
+    );
+    if (!deliveryAddressExists) {
+      throw new AddressValidationError('Delivery address does not exist');
     }
 
     const order = Order.create(

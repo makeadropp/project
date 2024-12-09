@@ -12,6 +12,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   RABBITMQ_URL: z.string().url(),
   JWT_SECRET: z.string(),
+  ADDRESS_SERVICE_URL: z.string().url(),
 });
 
 function loadEnvConfig() {
