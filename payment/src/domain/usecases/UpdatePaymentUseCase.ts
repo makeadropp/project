@@ -1,3 +1,4 @@
+import { RabbitMQService } from '../../infra/messaging/rabbitmq';
 import { Payment } from '../entities/Payment';
 import { PaymentStatus } from '../enums/PaymentStatus';
 import { PaymentRepository } from '../repositories/PaymentRepository';
@@ -9,7 +10,11 @@ interface UpdatePaymentDTO {
 }
 
 export class UpdatePaymentUseCase {
-  constructor(private readonly paymentRepository: PaymentRepository) {}
+  private readonly rabbitMQService: RabbitMQService;
+
+  constructor(private readonly paymentRepository: PaymentRepository) {
+    this.rabbitMQService = RabbitMQService.getInstance();
+  }
 
   async execute({
     id,
@@ -28,6 +33,16 @@ export class UpdatePaymentUseCase {
 
     if (status) {
       payment.updateStatus(status);
+
+      // If payment status is changing to COMPLETED, publish event
+      if (status === PaymentStatus.COMPLETED) {
+        try {
+          await this.rabbitMQService.publishPaymentCompleted(payment.orderId);
+        } catch (error) {
+          console.error('Failed to publish payment completed event:', error);
+          // Continue with the update even if event publishing fails
+        }
+      }
     }
 
     if (transactionId) {

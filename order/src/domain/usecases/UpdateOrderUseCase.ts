@@ -4,18 +4,14 @@ import { OrderRepository } from '../repositories/OrderRepository';
 
 interface UpdateOrderDTO {
   id: string;
-  status?: OrderStatus;
-  estimatedDeliveryDate?: Date;
+  status: OrderStatus;
 }
 
 export class UpdateOrderUseCase {
   constructor(private readonly orderRepository: OrderRepository) {}
 
-  async execute({
-    id,
-    status,
-    estimatedDeliveryDate,
-  }: UpdateOrderDTO): Promise<Order> {
+  async execute({ id, status }: UpdateOrderDTO): Promise<Order> {
+    console.log('Updating order status:', id, status);
     if (!id) {
       throw new Error('Order ID is required');
     }
@@ -25,15 +21,7 @@ export class UpdateOrderUseCase {
       throw new Error('Order not found');
     }
 
-    // Update status if provided
-    if (status) {
-      existingOrder.updateStatus(status);
-    }
-
-    // Update estimated delivery date if provided
-    if (estimatedDeliveryDate) {
-      existingOrder.setEstimatedDeliveryDate(estimatedDeliveryDate);
-    }
+    existingOrder.updateStatus(status);
 
     return this.orderRepository.update(existingOrder);
   }

@@ -14,9 +14,14 @@ export class OrderFactory {
     return new OrderController(
       new CreateOrderUseCase(repository),
       new GetOrderByIdUseCase(repository),
-      new UpdateOrderUseCase(repository),
       new ListUserOrdersUseCase(repository),
+      new UpdateOrderUseCase(repository),
       new CancelOrderUseCase(repository),
     );
+  }
+
+  static makeUpdateOrderUseCase(): UpdateOrderUseCase {
+    const repository = new PostgresOrderRepository(pool);
+    return new UpdateOrderUseCase(repository);
   }
 }

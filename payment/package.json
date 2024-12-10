@@ -33,6 +33,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@types/amqplib": "^0.10.6",
+    "amqplib": "^0.10.5",
     "bcryptjs": "^2.4.3",
     "hono": "^4.6.12",
     "jsonwebtoken": "^9.0.2",
