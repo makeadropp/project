@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { PaymentStatus } from '../../../domain/enums/PaymentStatus';
 
 export const createPaymentSchema = z.object({
-  userId: z.string().uuid('Invalid user ID format'),
   orderId: z.string().uuid('Invalid order ID format'),
   amount: z.number().positive('Amount must be positive'),
   currency: z.string().length(3, 'Currency must be a 3-letter code'),
@@ -10,6 +9,7 @@ export const createPaymentSchema = z.object({
 });
 
 export const updatePaymentSchema = z.object({
+  id: z.string().uuid('Invalid payment ID format'),
   status: z
     .enum([
       PaymentStatus.PENDING,

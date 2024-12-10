@@ -112,6 +112,31 @@ Content-Type: application/json
     "paymentMethod": "CREDIT_CARD"
 }
 
+
+### EuPago
+POST {{baseUrl}}/payment/credit-card
+Authorization: Bearer {{loginCustomer.response.body.token}}
+Content-Type: application/json
+
+{
+    "userId": "{{loginCustomer.response.body.user.id}}",
+  "payment": {
+    "identifier": "{{createOrder.response.body.data.id}}",
+    "amount": {
+      "value": 99.99,
+      "currency": "EUR"
+    },
+    "successUrl": "https://seusite.com/pagamento/sucesso",
+    "failUrl": "https://seusite.com/pagamento/erro",
+    "backUrl": "https://seusite.com/pagamento/voltar",
+    "lang": "PT",
+    "customer": {
+      "notify": true,
+      "email": "cliente@email.com"
+    }
+  }
+}
+
 ### Get Payment by ID
 # @name getPayment
 GET {{baseUrl}}/payment/{{createPayment.response.body.data.id}}

@@ -1,5 +1,5 @@
 export interface JWTUser {
-  id: string;
+  userId: string;
   email: string;
   role: string;
   iat?: number;

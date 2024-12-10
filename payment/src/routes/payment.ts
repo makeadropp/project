@@ -8,6 +8,11 @@ const paymentController = PaymentFactory.createController();
 // Create new payment
 router.post('/', auth, c => paymentController.create(c));
 
+// Create credit card payment
+router.post('/credit-card', auth, c =>
+  paymentController.createCreditCardPayment(c),
+);
+
 // Get payment by ID
 router.get('/:id', auth, c => paymentController.getById(c));
 

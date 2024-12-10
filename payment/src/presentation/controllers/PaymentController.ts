@@ -5,7 +5,9 @@ import {
   ListUserPaymentsUseCase,
   UpdatePaymentUseCase,
 } from '../../domain/usecases';
+import { CreateCreditCardPaymentUseCase } from '../../domain/usecases/CreateCreditCardPaymentUseCase';
 import { PaymentValidator } from '../../infra/validation/validators/PaymentValidator';
+import { JWTUser } from '../../types/auth';
 import { handleError } from '../handlers/error';
 import { handleResponse } from '../handlers/response';
 
@@ -15,10 +17,22 @@ export class PaymentController {
     private readonly getPaymentByIdUseCase: GetPaymentByIdUseCase,
     private readonly listUserPaymentsUseCase: ListUserPaymentsUseCase,
     private readonly updatePaymentUseCase: UpdatePaymentUseCase,
+    private readonly createCreditCardPaymentUseCase: CreateCreditCardPaymentUseCase,
   ) {}
 
   async create(c: Context) {
     try {
+      const user = c.get('user') as JWTUser | undefined;
+
+      if (!user) {
+        return c.json(
+          {
+            status: 'error',
+            message: 'User not found in request context',
+          },
+          401,
+        );
+      }
       const validation = await PaymentValidator.validateCreate(c);
       if (!validation.success || !validation.data) {
         return c.json(
@@ -31,13 +45,60 @@ export class PaymentController {
       }
 
       const payment = await this.createPaymentUseCase.execute({
-        userId: validation.data.userId,
+        userId: user.id,
         orderId: validation.data.orderId,
         amount: validation.data.amount,
         currency: validation.data.currency,
         paymentMethod: validation.data.paymentMethod,
       });
       return handleResponse(c, payment, 201);
+    } catch (error: unknown) {
+      console.log(error);
+      return handleError(c, error);
+    }
+  }
+
+  async createCreditCardPayment(c: Context) {
+    try {
+      const validation = await PaymentValidator.validateCreditCardPayment(c);
+      console.log('validation', validation);
+      if (!validation.success || !validation.data) {
+        return c.json(
+          {
+            status: 'error',
+            message: validation.error || 'Invalid request data',
+          },
+          400,
+        );
+      }
+
+      const { payment } = validation.data;
+      const user = c.get('user') as JWTUser | undefined;
+
+      console.log('user', user);
+
+      if (!user) {
+        return c.json(
+          {
+            status: 'error',
+            message: 'User not found in request context',
+          },
+          401,
+        );
+      }
+
+      const result = await this.createCreditCardPaymentUseCase.execute({
+        userId: user.userId,
+        orderId: payment.identifier,
+        amount: payment.amount.value,
+        currency: payment.amount.currency,
+        email: payment.customer.email,
+        successUrl: payment.successUrl,
+        failUrl: payment.failUrl,
+        backUrl: payment.backUrl,
+      });
+
+      return handleResponse(c, result, 201);
     } catch (error: unknown) {
       return handleError(c, error);
     }

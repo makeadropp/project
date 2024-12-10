@@ -89,6 +89,8 @@ services:
       - DATABASE_URL=postgres://user:password@postgres:5432/payment_db
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
       - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
+      - EUPAGO_API_KEY=demo-a5a2-af7d-8e69-a63
+      - EUPAGO_BASE_URL=https://sandbox.eupago.pt/
     depends_on:
       - postgres
       - rabbitmq
