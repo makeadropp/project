@@ -1,0 +1,183 @@
+openapi: 3.0.0
+info:
+  title: Payments API
+  description: API for managing payment operations
+  version: 1.0.0
+
+servers:
+  - url: http://localhost/payments
+    description: Local development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Payment:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        orderId:
+          type: string
+          format: uuid
+          example: '6e3b7504-0c21-4300-8a9f-7f26b4b303be'
+        amount:
+          type: number
+          format: double
+          example: 99.99
+        currency:
+          type: string
+          enum: [EUR, USD, GBP]
+          example: 'EUR'
+        paymentMethod:
+          type: string
+          enum: [CREDIT_CARD, DEBIT_CARD, BANK_TRANSFER]
+          example: 'CREDIT_CARD'
+        status:
+          type: string
+          enum: [PENDING, COMPLETED, FAILED]
+          example: 'PENDING'
+        transactionId:
+          type: string
+          example: 'txn_123456789'
+      required:
+        - userId
+        - orderId
+        - amount
+        - currency
+        - paymentMethod
+
+    PaymentUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [COMPLETED, FAILED]
+          example: 'COMPLETED'
+        transactionId:
+          type: string
+          example: 'txn_123456789'
+      required:
+        - status
+        - transactionId
+
+security:
+  - bearerAuth: []
+
+paths:
+  /:
+    post:
+      summary: Create a new payment
+      operationId: createPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '201':
+          description: Payment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /{paymentId}:
+    get:
+      summary: Get payment by ID
+      operationId: getPaymentById
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: '6e3b7504-0c21-4300-8a9f-7f26b4b303be'
+      responses:
+        '200':
+          description: Payment found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Payment not found
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update payment status
+      operationId: updatePayment
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: '6e3b7504-0c21-4300-8a9f-7f26b4b303be'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentUpdate'
+      responses:
+        '200':
+          description: Payment updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '404':
+          description: Payment not found
+        '500':
+          description: Internal server error
+
+  /user/{userId}:
+    get:
+      summary: List user payments
+      operationId: listUserPayments
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+      responses:
+        '200':
+          description: List of payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error

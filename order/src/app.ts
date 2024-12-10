@@ -10,11 +10,13 @@ import orderRoutes from './routes/order';
 
 // Initialize services
 initializeDatabase();
-const rabbitMQConsumer = RabbitMQConsumerFactory.create();
-rabbitMQConsumer.connect().catch(error => {
-  console.error('Failed to connect to RabbitMQ:', error);
-  process.exit(1);
-});
+setTimeout(() => {
+  const rabbitMQConsumer = RabbitMQConsumerFactory.create();
+  rabbitMQConsumer.connect().catch(error => {
+    console.error('Failed to connect to RabbitMQ:', error);
+    process.exit(1);
+  });
+}, 5000);
 
 export const app = new Hono();
 

@@ -137,11 +137,6 @@ Content-Type: application/json
   }
 }
 
-### Get Payment by ID
-# @name getPayment
-GET {{baseUrl}}/payment/{{createPayment.response.body.data.id}}
-Authorization: Bearer {{loginCustomer.response.body.token}}
-
 ### Update Payment
 # @name updatePayment
 PUT {{baseUrl}}/payment/{{createPayment.response.body.data.id}}

@@ -10,7 +10,6 @@ const envSchema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
   DATABASE_URL: z.string().url(),
-  RABBITMQ_URL: z.string().url(),
   JWT_SECRET: z.string(),
 });
 

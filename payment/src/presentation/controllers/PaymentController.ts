@@ -45,7 +45,7 @@ export class PaymentController {
       }
 
       const payment = await this.createPaymentUseCase.execute({
-        userId: user.id,
+        userId: user.userId,
         orderId: validation.data.orderId,
         amount: validation.data.amount,
         currency: validation.data.currency,

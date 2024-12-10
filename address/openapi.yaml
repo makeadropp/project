@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: Address Management API
+  description: API for managing user addresses
+  version: 1.0.0
+
+servers:
+  - url: http://localhost/address
+    description: Local development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Address:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '5bc3c6fb-a323-404f-8d60-cd169c42e0f3'
+        street:
+          type: string
+          example: 'Rua das Flores'
+        number:
+          type: string
+          example: '123'
+        complement:
+          type: string
+          example: 'Apartamento 4B'
+        neighborhood:
+          type: string
+          example: 'Centro'
+        city:
+          type: string
+          example: 'Porto'
+        state:
+          type: string
+          example: 'PT'
+        postal_code:
+          type: string
+          example: '40000000'
+        country:
+          type: string
+          example: 'Portugal'
+        address_type:
+          type: string
+          enum: [HOME, WORK, OTHER]
+          example: 'HOME'
+        latitude:
+          type: number
+          format: double
+          example: 41.1496100
+        longitude:
+          type: number
+          format: double
+          example: -8.6109900
+        is_default:
+          type: boolean
+          example: true
+        userId:
+          type: string
+          format: uuid
+      required:
+        - street
+        - number
+        - neighborhood
+        - city
+        - state
+        - postal_code
+        - country
+        - address_type
+
+security:
+  - bearerAuth: []
+
+paths:
+  /:
+    get:
+      summary: List all addresses for the authenticated user
+      responses:
+        '200':
+          description: List of addresses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Address'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        '201':
+          description: Address created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /{addressId}:
+    get:
+      summary: Get address by ID
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: '5bc3c6fb-a323-404f-8d60-cd169c42e0f3'
+      responses:
+        '200':
+          description: Address retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Address not found
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update an address
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: '5bc3c6fb-a323-404f-8d60-cd169c42e0f3'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        '200':
+          description: Address updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '404':
+          description: Address not found
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete an address
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: '5bc3c6fb-a323-404f-8d60-cd169c42e0f3'
+      responses:
+        '204':
+          description: Address deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Address not found
+        '500':
+          description: Internal server error
