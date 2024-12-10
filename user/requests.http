@@ -33,7 +33,7 @@ Content-Type: application/json
 
 {
     "email": "joao.silva@email.com",
-    "password": "novaSenha456"
+    "password": "senha123"
 }
 
 ### Obter Perfil Próprio

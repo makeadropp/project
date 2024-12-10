@@ -78,6 +78,28 @@ services:
       - "traefik.http.middlewares.order-strip.stripprefix.prefixes=/order"
       - "traefik.http.routers.order.middlewares=order-strip@docker"
 
+  payment:
+    image: oven/bun:latest
+    volumes:
+      - ./payment:/app
+    working_dir: /app
+    command: sh -c "bun install && bun run db:wait && bun run dev"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://user:password@postgres:5432/payment_db
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+      - JWT_SECRET=iwqer98fywefrhpwefhpwq89erfyqwe
+    depends_on:
+      - postgres
+      - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.payment.rule=PathPrefix(`/payment`)"
+      - "traefik.http.routers.payment.entrypoints=web"
+      - "traefik.http.services.payment.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.payment-strip.stripprefix.prefixes=/payment"
+      - "traefik.http.routers.payment.middlewares=payment-strip@docker"
+
   mongodb:
     image: mongo:latest
     environment:

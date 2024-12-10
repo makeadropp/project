@@ -78,7 +78,7 @@ export class OrderController {
     try {
       const id = c.req.param('id');
       const body = await c.req.json();
-      const order = await this.updateOrderUseCase.execute(id, body);
+      const order = await this.updateOrderUseCase.execute({ id, ...body });
       return handleResponse(c, order);
     } catch (error: unknown) {
       return handleError(c, error);

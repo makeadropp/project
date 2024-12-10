@@ -1,39 +1,33 @@
-@baseUrl = http://localhost/order
+@baseUrl = http://localhost/payments
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhYmViNTZhMS02Y2ZhLTQzM2EtOWQ3OC1jZjI0MzQ4MzhkZDciLCJlbWFpbCI6ImpvYW8uc2lsdmFAZW1haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiZmlyc3ROYW1lIjoiSm_Do28iLCJsYXN0TmFtZSI6IlNpbHZhIiwiaWF0IjoxNzMzNzkwNDAyLCJleHAiOjE3MzM4NzY4MDJ9.uULgB81LOdDSnfFDzKcc3rUY6lhQUyaHnVk2D7ntD2M
 
-### Health Check
-GET {{baseUrl}}/health
-
-### Create Order
+### Create Payment
 POST {{baseUrl}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "userId": "123e4567-e89b-12d3-a456-426614174000",
-  "pickupAddressId": "aac0b0d4-4335-49dc-a182-196d4c3d9433",
-  "deliveryAddressId": "aac0b0d4-4335-49dc-a182-196d4c3d9433",
-  "transportType": "DRONE"
+  "orderId": "6e3b7504-0c21-4300-8a9f-7f26b4b303be",
+  "amount": 99.99,
+  "currency": "EUR",
+  "paymentMethod": "CREDIT_CARD"
 }
 
-### Get Order by ID
+### Get Payment by ID
 GET {{baseUrl}}/6e3b7504-0c21-4300-8a9f-7f26b4b303be
 Authorization: Bearer {{token}}
 
-### Update Order
+### Update Payment
 PUT {{baseUrl}}/6e3b7504-0c21-4300-8a9f-7f26b4b303be
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "status": "IN_TRANSIT",
-  "estimatedDeliveryDate": "2024-03-20T15:00:00Z"
+  "status": "COMPLETED",
+  "transactionId": "txn_123456789"
 }
 
-### Cancel Order
-DELETE {{baseUrl}}/123e4567-e89b-12d3-a456-426614174003
-Authorization: Bearer {{token}}
-
-### List User Orders
+### List User Payments
 GET {{baseUrl}}/user/123e4567-e89b-12d3-a456-426614174000
 Authorization: Bearer {{token}}

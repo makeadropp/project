@@ -17,7 +17,4 @@ router.put('/:id', auth, c => orderController.update(c));
 // Cancel order
 router.delete('/:id', auth, c => orderController.cancel(c));
 
-// List user orders
-router.get('/user/:userId', auth, c => orderController.listByUser(c));
-
 export default router;

@@ -1,0 +1,133 @@
+@baseUrl = http://localhost
+
+### Registro de Novo Cliente
+# @name registerCustomer
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+    "firstName": "João",
+    "lastName": "Silva",
+    "email": "joao.silva@email.com",
+    "phone": "351912345678",
+    "password": "senha123",
+    "role": "CUSTOMER"
+}
+
+### Registro de Novo Motorista
+# @name registerDriver
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+    "firstName": "Manuel",
+    "lastName": "Santos",
+    "email": "manuel.santos@email.com",
+    "phone": "351923456789",
+    "password": "senha456",
+    "role": "DRIVER"
+}
+
+### Login de Cliente
+# @name loginCustomer
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+    "email": "{{registerCustomer.request.body.email}}",
+    "password": "{{registerCustomer.request.body.password}}"
+}
+
+### Obter Perfil do Cliente
+# @name getProfile
+GET {{baseUrl}}/user/me
+Authorization: Bearer {{loginCustomer.response.body.token}}
+
+### Listar Endereços
+GET {{baseUrl}}/address
+Authorization: Bearer {{loginCustomer.response.body.token}}
+
+
+### Criar Novo Endereço
+# @name addressHome
+POST {{baseUrl}}/address
+Authorization: Bearer {{loginCustomer.response.body.token}}
+Content-Type: application/json
+
+{
+    "street": "Rua das Flores",
+    "number": "123",
+    "complement": "Apartamento 4B",
+    "neighborhood": "Centro",
+    "city": "Porto",
+    "state": "PT",
+    "postal_code": "40000000",
+    "country": "Portugal",
+    "address_type": "HOME",
+    "latitude": 41.1496100,
+    "longitude": -8.6109900,
+    "is_default": true
+}
+
+### Create Order
+# @name createOrder
+POST {{baseUrl}}/order
+Authorization: Bearer {{loginCustomer.response.body.token}}
+Content-Type: application/json
+
+{
+    "userId": "{{loginCustomer.response.body.user.id}}",
+    "pickupAddressId": "{{ addressHome.response.body.data.address_id }}",
+    "deliveryAddressId": "{{ addressHome.response.body.data.address_id }}",
+    "transportType": "DRONE"
+}
+
+### Get Order by ID
+# @name getOrder
+GET {{baseUrl}}/order/{{createOrder.response.body.data.id}}
+Authorization: Bearer {{loginCustomer.response.body.token}}
+
+### Update Order
+# @name updateOrder
+PUT {{baseUrl}}/order/{{createOrder.response.body.data.id}}
+Authorization: Bearer {{loginCustomer.response.body.token}}
+Content-Type: application/json
+
+{
+    "status": "IN_TRANSIT",
+    "estimatedDeliveryDate": "2024-03-20T15:00:00Z"
+}
+
+### Novo Pagamento
+# @name createPayment
+POST {{baseUrl}}/payments
+Authorization: Bearer {{loginCustomer.response.body.token}}
+Content-Type: application/json
+
+{
+    "userId": "{{loginCustomer.response.body.user.id}}",
+    "orderId": "{{createOrder.response.body.id}}",
+    "amount": 99.99,
+    "currency": "EUR",
+    "paymentMethod": "CREDIT_CARD"
+}
+
+### Get Payment by ID
+# @name getPayment
+GET {{baseUrl}}/payments/{{createPayment.response.body.id}}
+Authorization: Bearer {{loginCustomer.response.body.token}}
+
+### Update Payment
+# @name updatePayment
+PUT {{baseUrl}}/payments/{{createPayment.response.body.id}}
+Authorization: Bearer {{loginCustomer.response.body.token}}
+Content-Type: application/json
+
+{
+    "status": "COMPLETED",
+    "transactionId": "txn_123456789"
+}
+
+### List User Payments
+GET {{baseUrl}}/payments/user/{{loginCustomer.response.body.user.id}}
+Authorization: Bearer {{loginCustomer.response.body.token}}

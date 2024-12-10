@@ -17,8 +17,6 @@ export class UpdateOrderUseCase {
 
   async execute({
     id,
-    pickupAddressId,
-    deliveryAddressId,
     transportType,
     status,
     estimatedDeliveryDate,
@@ -30,14 +28,6 @@ export class UpdateOrderUseCase {
     const existingOrder = await this.orderRepository.findById(id);
     if (!existingOrder) {
       throw new Error('Order not found');
-    }
-
-    // Update addresses if provided
-    if (pickupAddressId || deliveryAddressId) {
-      existingOrder.updateAddresses(
-        pickupAddressId || existingOrder.pickupAddressId,
-        deliveryAddressId || existingOrder.deliveryAddressId,
-      );
     }
 
     // Update transport type if provided
