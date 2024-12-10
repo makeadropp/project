@@ -100,13 +100,13 @@ Content-Type: application/json
 
 ### Novo Pagamento
 # @name createPayment
-POST {{baseUrl}}/payments
+POST {{baseUrl}}/payment
 Authorization: Bearer {{loginCustomer.response.body.token}}
 Content-Type: application/json
 
 {
     "userId": "{{loginCustomer.response.body.user.id}}",
-    "orderId": "{{createOrder.response.body.id}}",
+    "orderId": "{{createOrder.response.body.data.id}}",
     "amount": 99.99,
     "currency": "EUR",
     "paymentMethod": "CREDIT_CARD"
@@ -114,12 +114,12 @@ Content-Type: application/json
 
 ### Get Payment by ID
 # @name getPayment
-GET {{baseUrl}}/payments/{{createPayment.response.body.id}}
+GET {{baseUrl}}/payment/{{createPayment.response.body.data.id}}
 Authorization: Bearer {{loginCustomer.response.body.token}}
 
 ### Update Payment
 # @name updatePayment
-PUT {{baseUrl}}/payments/{{createPayment.response.body.id}}
+PUT {{baseUrl}}/payment/{{createPayment.response.body.data.id}}
 Authorization: Bearer {{loginCustomer.response.body.token}}
 Content-Type: application/json
 
@@ -129,5 +129,5 @@ Content-Type: application/json
 }
 
 ### List User Payments
-GET {{baseUrl}}/payments/user/{{loginCustomer.response.body.user.id}}
+GET {{baseUrl}}/payment/user/{{loginCustomer.response.body.user.id}}
 Authorization: Bearer {{loginCustomer.response.body.token}}

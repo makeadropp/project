@@ -1,11 +1,11 @@
+import { Context } from 'hono';
 import {
   CancelOrderUseCase,
   CreateOrderUseCase,
   GetOrderByIdUseCase,
   ListUserOrdersUseCase,
   UpdateOrderUseCase,
-} from '@/domain/usecases';
-import { Context } from 'hono';
+} from '../../domain/usecases';
 import { AddressValidationError } from '../../utils/addressValidator';
 import { handleError } from '../handlers/error';
 import { handleResponse } from '../handlers/response';
@@ -78,7 +78,15 @@ export class OrderController {
     try {
       const id = c.req.param('id');
       const body = await c.req.json();
-      const order = await this.updateOrderUseCase.execute({ id, ...body });
+      const updateData = {
+        id,
+        ...body,
+        estimatedDeliveryDate: body.estimatedDeliveryDate
+          ? new Date(body.estimatedDeliveryDate)
+          : undefined,
+      };
+
+      const order = await this.updateOrderUseCase.execute(updateData);
       return handleResponse(c, order);
     } catch (error: unknown) {
       return handleError(c, error);

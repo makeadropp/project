@@ -1,13 +1,9 @@
 import { Order } from '../entities/Order';
 import { OrderStatus } from '../enums/OrderStatus';
-import { TransportType } from '../enums/TransportType';
 import { OrderRepository } from '../repositories/OrderRepository';
 
 interface UpdateOrderDTO {
   id: string;
-  pickupAddressId?: string;
-  deliveryAddressId?: string;
-  transportType?: TransportType;
   status?: OrderStatus;
   estimatedDeliveryDate?: Date;
 }
@@ -17,7 +13,6 @@ export class UpdateOrderUseCase {
 
   async execute({
     id,
-    transportType,
     status,
     estimatedDeliveryDate,
   }: UpdateOrderDTO): Promise<Order> {
@@ -28,11 +23,6 @@ export class UpdateOrderUseCase {
     const existingOrder = await this.orderRepository.findById(id);
     if (!existingOrder) {
       throw new Error('Order not found');
-    }
-
-    // Update transport type if provided
-    if (transportType) {
-      existingOrder.assignTransport(transportType);
     }
 
     // Update status if provided
