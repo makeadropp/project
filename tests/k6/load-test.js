@@ -55,7 +55,7 @@ const BASE_URL = 'https://k8s.orb.local';
 
 // Função auxiliar para fazer a requisição e verificar a resposta
 function makeHealthCheck() {
-  const response = http.get(`${BASE_URL}/addresses/health`);
+  const response = http.get(`${BASE_URL}/addresses/stress`);
   
   const checkResult = check(response, {
     'status is 200': (r) => r.status === 200,
