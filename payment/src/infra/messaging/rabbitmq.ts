@@ -68,8 +68,38 @@ export class RabbitMQService {
     this.connecting = null;
   }
 
+  async publishPaymentFailed(orderId: string): Promise<void> {
+    if (!this.channel || !this.connection) {
+      await this.connect();
+    }
+
+    if (!this.channel) {
+      throw new Error('Failed to establish RabbitMQ connection');
+    }
+
+    const message = {
+      order_id: orderId,
+      status: 'FAILED',
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      await this.channel.publish(
+        'payment_events',
+        'payment.failed',
+        Buffer.from(JSON.stringify(message)),
+        { persistent: true },
+      );
+
+      console.log('Published payment failed event:', message);
+    } catch (error) {
+      console.error('Error publishing message:', error);
+      this.resetConnection();
+      throw error;
+    }
+  }
+
   async publishPaymentCompleted(orderId: string): Promise<void> {
-    // Auto-connect if not connected
     if (!this.channel || !this.connection) {
       await this.connect();
     }

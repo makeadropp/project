@@ -19,23 +19,32 @@ export class RabbitMQConsumer {
         durable: true,
       });
 
-      // Create a queue for order service
-      const { queue } = await this.channel.assertQueue(
+      // Create queues for payment events
+      const { queue: successQueue } = await this.channel.assertQueue(
         'order_payment_completed',
-        {
-          durable: true,
-        },
+        { durable: true },
       );
 
-      // Bind the queue to the exchange with the specific routing key
+      const { queue: failureQueue } = await this.channel.assertQueue(
+        'order_payment_failed',
+        { durable: true },
+      );
+
+      // Bind queues to the exchange with specific routing keys
       await this.channel.bindQueue(
-        queue,
+        successQueue,
         'payment_events',
-        'payment.completed',
+        'payment.completed'
       );
 
-      // Start consuming messages
-      await this.channel.consume(queue, async msg => {
+      await this.channel.bindQueue(
+        failureQueue,
+        'payment_events',
+        'payment.failed'
+      );
+
+      // Handle successful payments
+      await this.channel.consume(successQueue, async msg => {
         if (!msg) return;
 
         try {
@@ -52,6 +61,29 @@ export class RabbitMQConsumer {
           this.channel?.ack(msg);
         } catch (error) {
           console.error('Error processing payment completed event:', error);
+          // Reject the message and requeue it
+          this.channel?.nack(msg, false, true);
+        }
+      });
+
+      // Handle failed payments
+      await this.channel.consume(failureQueue, async msg => {
+        if (!msg) return;
+
+        try {
+          const content = await JSON.parse(msg.content.toString());
+          console.log('Received payment failed event:', content);
+
+          // Compensating transaction: Update order status to PAYMENT_FAILED
+          await this.updateOrderUseCase.execute({
+            id: content.order_id,
+            status: OrderStatus.PAYMENT_FAILED,
+          });
+
+          // Acknowledge the message
+          this.channel?.ack(msg);
+        } catch (error) {
+          console.error('Error processing payment failed event:', error);
           // Reject the message and requeue it
           this.channel?.nack(msg, false, true);
         }

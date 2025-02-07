@@ -1,6 +1,7 @@
 import { env } from '@/config/env';
 import { Payment } from '../entities/Payment';
 import { PaymentRepository } from '../repositories/PaymentRepository';
+import { RabbitMQService } from '../../infra/messaging/rabbitmq';
 
 interface CreditCardPaymentRequest {
   userId: string;
@@ -30,6 +31,8 @@ export class CreateCreditCardPaymentUseCase {
   constructor(private readonly paymentRepository: PaymentRepository) {}
 
   async execute(request: CreditCardPaymentRequest): Promise<EupagoResponse> {
+    const rabbitmq = RabbitMQService.getInstance();
+    
     try {
       // Create payment record
       const payment = Payment.create(
@@ -61,7 +64,6 @@ export class CreateCreditCardPaymentUseCase {
           },
         },
       };
-      console.log('Eupago payload', env.EUPAGO_API_KEY);
 
       // Make request to Eupago API
       const response = await fetch(
@@ -76,18 +78,23 @@ export class CreateCreditCardPaymentUseCase {
         },
       );
 
-      console.log('Eupago response', response);
-
       const data = (await response.json()) as EupagoApiResponse;
 
       if (!response.ok) {
+        // Payment failed - update payment status and emit event
+        payment.setStatus('FAILED');
+        await this.paymentRepository.update(payment);
+        await rabbitmq.publishPaymentFailed(request.orderId);
+        
         throw new Error(data.message || 'Failed to create credit card payment');
       }
 
-      // Update payment with transaction details if needed
+      // Update payment with transaction details
       if (data.reference) {
         payment.setTransactionId(data.reference);
+        payment.setStatus('COMPLETED');
         await this.paymentRepository.update(payment);
+        await rabbitmq.publishPaymentCompleted(request.orderId);
       }
 
       return {
@@ -95,6 +102,9 @@ export class CreateCreditCardPaymentUseCase {
         paymentUrl: data.paymentUrl,
       };
     } catch (error) {
+      // Ensure payment failure is published even if there's an error
+      await rabbitmq.publishPaymentFailed(request.orderId);
+      
       if (error instanceof Error) {
         return {
           success: false,
