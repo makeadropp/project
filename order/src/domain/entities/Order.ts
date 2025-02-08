@@ -29,7 +29,7 @@ export class Order {
       pickupAddressId,
       deliveryAddressId,
       transportType || null,
-      OrderStatus.PROCESSING,
+      OrderStatus.PENDING,
       null,
       now,
       now,
@@ -42,7 +42,7 @@ export class Order {
     pickupAddressId: string,
     deliveryAddressId: string,
   ): void {
-    if (this.status !== OrderStatus.PROCESSING) {
+    if (this.status !== OrderStatus.PENDING) {
       throw new Error(
         'Cannot update addresses after order processing has started',
       );
@@ -53,7 +53,7 @@ export class Order {
   }
 
   public assignTransport(transportType: TransportType): void {
-    if (this.status !== OrderStatus.PROCESSING) {
+    if (this.status !== OrderStatus.PENDING) {
       throw new Error(
         'Cannot assign transport after order processing has started',
       );

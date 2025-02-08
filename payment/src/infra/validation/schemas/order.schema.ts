@@ -25,7 +25,7 @@ export const updateOrderSchema = z.object({
     .optional(),
   status: z
     .enum([
-      OrderStatus.PROCESSING,
+      OrderStatus.PENDING,
       OrderStatus.IN_TRANSIT,
       OrderStatus.DELIVERED,
       OrderStatus.CANCELLED,

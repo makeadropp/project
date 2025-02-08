@@ -5,6 +5,8 @@ export async function createOrderTable() {
     DO $$ BEGIN
       -- Create ENUMs if they don't exist
       CREATE TYPE order_status AS ENUM (
+        'PENDING',
+        'PAYMENT_FAILED',
         'PROCESSING',
         'IN_TRANSIT',
         'DELIVERED',
@@ -30,7 +32,7 @@ export async function createOrderTable() {
       pickup_address_id UUID NOT NULL,
       delivery_address_id UUID NOT NULL,
       transport_type transport_type,
-      status order_status NOT NULL DEFAULT 'PROCESSING',
+      status order_status NOT NULL DEFAULT 'PENDING',
       estimated_delivery_date TIMESTAMP,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

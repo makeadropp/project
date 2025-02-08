@@ -32,7 +32,7 @@ describe('Order Service', () => {
 
         expect(response.status).toBe(201);
         expect(response.body.data).toHaveProperty('id');
-        expect(response.body.data.status).toBe(OrderStatus.PROCESSING);
+        expect(response.body.data.status).toBe(OrderStatus.PENDING);
       });
     });
 
