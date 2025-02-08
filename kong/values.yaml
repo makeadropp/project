@@ -1,0 +1,39 @@
+image:
+  repository: kong
+  tag: "3.4"
+
+env:
+  database: "off"
+  proxy_access_log: /dev/stdout
+  admin_access_log: /dev/stdout
+  proxy_error_log: /dev/stderr
+  admin_error_log: /dev/stderr
+
+admin:
+  enabled: true
+  http:
+    enabled: true
+    servicePort: 8001
+    containerPort: 8001
+  tls:
+    enabled: false
+
+proxy:
+  enabled: true
+  type: LoadBalancer
+  http:
+    enabled: true
+    servicePort: 80
+    containerPort: 8000
+  tls:
+    enabled: false
+
+ingressController:
+  enabled: true
+  installCRDs: false
+
+postgresql:
+  enabled: false
+
+serviceMonitor:
+  enabled: false

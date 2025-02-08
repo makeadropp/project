@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-sql
+  namespace: dropp
+data:
+  init.sql: |
+    -- Create user with password
+    CREATE USER "user" WITH PASSWORD 'password';
+
+    -- Create databases
+    CREATE DATABASE user_db;
+    CREATE DATABASE address_db;
+    CREATE DATABASE order_db;
+    CREATE DATABASE payment_db;
+
+    -- Grant privileges
+    GRANT ALL PRIVILEGES ON DATABASE user_db TO "user";
+    GRANT ALL PRIVILEGES ON DATABASE address_db TO "user";
+    GRANT ALL PRIVILEGES ON DATABASE order_db TO "user";
+    GRANT ALL PRIVILEGES ON DATABASE payment_db TO "user";
+
+    -- Connect to each database and create extensions
+    \c user_db;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    GRANT CREATE ON SCHEMA public TO "user";
+    GRANT USAGE ON SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO "user";
+    DO $$ BEGIN
+      CREATE TYPE user_role AS ENUM ('ADMIN', 'DRIVER', 'CUSTOMER');
+    EXCEPTION
+      WHEN duplicate_object THEN NULL;
+    END $$;
+    GRANT USAGE ON TYPE user_role TO "user";
+
+    \c order_db;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    GRANT CREATE ON SCHEMA public TO "user";
+    GRANT USAGE ON SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO "user";
+    DO $$ BEGIN
+      CREATE TYPE order_status AS ENUM ('PROCESSING', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED');
+      CREATE TYPE transport_type AS ENUM ('BIKE', 'CAR', 'DRONE');
+    EXCEPTION
+      WHEN duplicate_object THEN NULL;
+    END $$;
+    GRANT USAGE ON TYPE order_status TO "user";
+    GRANT USAGE ON TYPE transport_type TO "user";
+
+    \c payment_db;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    GRANT CREATE ON SCHEMA public TO "user";
+    GRANT USAGE ON SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO "user";
+    DO $$ BEGIN
+      CREATE TYPE payment_status AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', 'CANCELLED');
+    EXCEPTION
+      WHEN duplicate_object THEN NULL;
+    END $$;
+    GRANT USAGE ON TYPE payment_status TO "user";
+
+    \c address_db;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    GRANT CREATE ON SCHEMA public TO "user";
+    GRANT USAGE ON SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "user";
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "user";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO "user";

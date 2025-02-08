@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: address
+  namespace: dropp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: address
+  template:
+    metadata:
+      labels:
+        app: address
+    spec:
+      containers:
+        - name: address
+          image: oven/bun:latest
+          workingDir: /app
+          command: ["sh", "-c"]
+          args: ["bun install && bun run db:wait && bun run dev"]
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: DATABASE_URL
+              value: "postgres://user:password@postgres:5432/address_db"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: JWT_SECRET
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: app-code
+          hostPath:
+            path: /Users/vhugo/IPCA/2024/MEI/Projeto de Computação na Cloud /app/address
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: address
+  namespace: dropp
+spec:
+  selector:
+    app: address
+  ports:
+    - port: 80
+      targetPort: 3000
+  type: ClusterIP

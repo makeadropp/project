@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  namespace: dropp
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: dropp
+spec:
+  serviceName: rabbitmq
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      volumes:
+        - name: init-script
+          configMap:
+            name: rabbitmq-init
+            defaultMode: 0755
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3-management
+          command: ["/scripts/rabbitmq-init.sh"]
+          ports:
+            - containerPort: 5672
+              name: amqp
+            - containerPort: 15672
+              name: management
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "user"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "password"
+          volumeMounts:
+            - name: init-script
+              mountPath: /scripts
+          livenessProbe:
+            tcpSocket:
+              port: amqp
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: amqp
+            initialDelaySeconds: 10
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-init
+  namespace: dropp
+data:
+  rabbitmq-init.sh: |
+    #!/bin/sh
+
+    # Start RabbitMQ in the background
+    rabbitmq-server &
+
+    # Wait for RabbitMQ to start
+    sleep 10
+
+    # Create user and set permissions
+    rabbitmqctl add_user user password || rabbitmqctl change_password user password
+    rabbitmqctl set_user_tags user administrator
+    rabbitmqctl set_permissions -p / user ".*" ".*" ".*"
+
+    # Keep container running
+    wait
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: dropp
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - port: 5672
+      name: amqp
+    - port: 15672
+      name: management
