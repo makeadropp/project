@@ -10,28 +10,28 @@ spec:
   rules:
     - http:
         paths:
-          - path: /user
+          - path: /api/user
             pathType: Prefix
             backend:
               service:
                 name: user
                 port:
                   number: 80
-          - path: /address
+          - path: /api/address
             pathType: Prefix
             backend:
               service:
                 name: address
                 port:
                   number: 80
-          - path: /order
+          - path: /api/order
             pathType: Prefix
             backend:
               service:
                 name: order
                 port:
                   number: 80
-          - path: /payment
+          - path: /api/payment
             pathType: Prefix
             backend:
               service:
