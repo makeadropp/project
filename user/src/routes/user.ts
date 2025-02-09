@@ -62,3 +62,10 @@ userRouter.get("/customers",
   roleGuard(UserRole.ADMIN),
   (c) => userController.getCustomers(c)
 );
+
+// Test endpoint for load testing
+userRouter.get("/test", async (c) => {
+  // Simulate some work
+  await new Promise(resolve => setTimeout(resolve, 100));
+  return c.json({ message: "Test endpoint response", timestamp: new Date().toISOString() });
+});
